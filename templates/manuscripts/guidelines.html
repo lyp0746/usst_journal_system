@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block page_title %}投稿指南{% endblock %}
+{% block content %}
+<div class="card shadow p-4">
+  <h2 class="card-title h5">投稿指南</h2>
+  <p>请按照以下要求准备稿件：</p>
+  <ul>
+    <li>文件格式：PDF（<50MB）</li>
+    <li>标题：不超过200字</li>
+    <li>摘要：200-500字</li>
+  </ul>
+  <a href="{% url 'download_template' %}" class="btn btn-primary bg-gradient">下载模板</a>
+</div>
+{% endblock %}

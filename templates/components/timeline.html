@@ -1,0 +1,16 @@
+<div class="timeline-container mb-4">
+  <h4 class="h6 mb-3">审稿进程时间线</h4>
+  {% if events %}
+    <ul class="timeline">
+      {% for event in events %}
+        <li class="timeline-item">
+          <div class="timeline-body">
+            <strong>{{ event.date|date:"Y-m-d H:i" }}</strong>：{{ event.description }}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">暂无审稿进程记录</p>
+  {% endif %}
+</div>

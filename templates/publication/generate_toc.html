@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block page_title %}生成目录 - 卷 {{ issue.volume.volume_number }} 期 {{ issue.issue_number }}{% endblock %}
+{% block content %}
+<div class="card shadow">
+  <div class="card-body">
+    <h2 class="card-title h5">目录预览</h2>
+    <ul class="list-group mb-4">
+      {% for pub in publications %}
+        <li class="list-group-item">{{ pub.manuscript.title_cn }} - {{ pub.manuscript.authors }} ({{ pub.page_start }}-{{ pub.page_end }})</li>
+      {% endfor %}
+    </ul>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary bg-gradient">生成 PDF 并发布</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

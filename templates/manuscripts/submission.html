@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+{% block page_title %}投稿{% endblock %}
+{% block content %}
+<div class="card shadow p-4">
+  <h2 class="card-title h5 mb mb-4">投稿</h2>
+  <div class="progress mb-4">
+    <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+  </div>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="accordion" id="submissionAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#basicInfo">基本信息</button>
+        </h2>
+        <div id="basicInfo" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+            {{ form.title_cn|as_crispy_field }}
+            {{ form.title_en|as_crispy_field }}
+            {{ form.type|as_crispy_field }}
+            {{ form.research_field|as_crispy_field }}
+            {{ form.category_number|as_crispy_field }}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#authorInfo">作者信息</button>
+        </h2>
+        <div id="authorInfo" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            <div id="authors-container">
+              <div class="mb-3">
+                <h5>作者列表</h5>
+                <p class="text-muted">请添加所有作者信息，并选择一位通讯作者</p>
+              </div>
+
+              <!-- 作者列表将由JavaScript动态生成 -->
+              <div id="authors-list" class="mb-3"></div>
+
+              <button type="button" id="add-author-btn" class="btn btn-outline-primary">
+                <i class="bi bi-plus-circle"></i> 添加作者
+              </button>
+            </div>
+
+            <!-- 隐藏字段，用于存储JSON格式的作者数据 -->
+            {{ form.authors_data }}
+
+            <!-- 添加隐藏字段，用于标识提交类型 -->
+            {{ form.submission_type }}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#abstractKeywords">摘要与关键词</button>
+        </h2>
+        <div id="abstractKeywords" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            {{ form.abstract_cn|as_crispy_field }}
+            {{ form.abstract_en|as_crispy_field }}
+            {{ form.keywords_cn|as_crispy_field }}
+            {{ form.keywords_en|as_crispy_field }}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fileUpload">文件上传</button>
+        </h2>
+        <div id="fileUpload" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            {{ form.manuscript_file|as_crispy_field }}
+            {{ form.additional_file|as_crispy_field }}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#confirmation">确认</button>
+        </h2>
+        <div id="confirmation" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            {{ form.copyright_agreement|as_crispy_field }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 修改提交按钮部分 -->
+    <div class="mt-4">
+      <button type="submit" id="save-draft-btn" name="save_draft" class="btn btn-secondary bg-gradient">保存草稿</button>
+      <button type="submit" id="submit-btn" name="submit" class="btn btn-primary bg-gradient">提交</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const authorsContainer = document.getElementById('authors-list');
+  const addAuthorBtn = document.getElementById('add-author-btn');
+  const authorsDataInput = document.querySelector('input[name="authors_data"]');
+  const submissionTypeInput = document.querySelector('input[name="submission_type"]');
+  const saveDraftBtn = document.getElementById('save-draft-btn');
+  const submitBtn = document.getElementById('submit-btn');
+
+  // 设置提交按钮的处理逻辑
+  saveDraftBtn.addEventListener('click', function() {
+    submissionTypeInput.value = 'draft';
+  });
+
+  submitBtn.addEventListener('click', function() {
+    submissionTypeInput.value = 'submit';
+  });
+
+  let authors = [];
+
+  // 初始化 - 添加当前用户作为第一个作者
+  addAuthor({
+    name: "{{ user.profile.full_name }}",
+    affiliation: "{{ user.profile.institution }}",
+    is_corresponding: true  // 默认为通讯作者
+  });
+
+  // 添加作者按钮事件
+  addAuthorBtn.addEventListener('click', function() {
+    addAuthor({
+      name: "",
+      affiliation: "",
+      is_corresponding: false
+    });
+  });
+
+  // 添加作者到表单
+  function addAuthor(author) {
+    const authorIndex = authors.length;
+    authors.push(author);
+
+    const authorElement = document.createElement('div');
+    authorElement.className = 'card mb-3 author-card';
+    authorElement.dataset.index = authorIndex;
+
+    authorElement.innerHTML = `
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="card-title mb-0">作者 #${authorIndex + 1}</h6>
+          <button type="button" class="btn-close delete-author" aria-label="删除"></button>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">姓名</label>
+            <input type="text" class="form-control author-name" value="${author.name}" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">单位</label>
+            <input type="text" class="form-control author-affiliation" value="${author.affiliation}" required>
+          </div>
+          <div class="col-md-2">
+            <div class="form-check mt-4">
+              <input class="form-check-input corresponding-author" type="radio" name="correspondingAuthor" ${author.is_corresponding ? 'checked' : ''}>
+              <label class="form-check-label">通讯作者</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // 添加事件监听器
+    const deleteBtn = authorElement.querySelector('.delete-author');
+    deleteBtn.addEventListener('click', function() {
+      removeAuthor(authorIndex);
+    });
+
+    const correspondingRadio = authorElement.querySelector('.corresponding-author');
+    correspondingRadio.addEventListener('change', function() {
+      updateCorrespondingAuthor(authorIndex);
+    });
+
+    const nameInput = authorElement.querySelector('.author-name');
+    const affiliationInput = authorElement.querySelector('.author-affiliation');
+
+    nameInput.addEventListener('input', function() {
+      updateAuthorData(authorIndex, 'name', this.value);
+    });
+
+    affiliationInput.addEventListener('input', function() {
+      updateAuthorData(authorIndex, 'affiliation', this.value);
+    });
+
+    authorsContainer.appendChild(authorElement);
+    updateAuthorsData();
+  }
+
+  // 删除作者
+  function removeAuthor(index) {
+    // 禁止删除唯一的作者
+    if (authors.length <= 1) {
+      alert('至少需要一位作者');
+      return;
+    }
+
+    // 如果删除的是通讯作者，确保选择另一个作者作为通讯作者
+    if (authors[index].is_corresponding && authors.length > 1) {
+      const newCorrespondingIndex = authors.findIndex((_, i) => i !== index);
+      if (newCorrespondingIndex !== -1) {
+        authors[newCorrespondingIndex].is_corresponding = true;
+      }
+    }
+
+    // 从数组中移除
+    authors.splice(index, 1);
+
+    // 重新渲染所有作者
+    rebuildAuthorsList();
+  }
+
+  // 更新通讯作者
+  function updateCorrespondingAuthor(index) {
+    authors.forEach((author, i) => {
+      author.is_corresponding = (i === index);
+    });
+    updateAuthorsData();
+  }
+
+  // 更新作者数据
+  function updateAuthorData(index, field, value) {
+    if (authors[index]) {
+      authors[index][field] = value;
+      updateAuthorsData();
+    }
+  }
+
+  // 更新隐藏输入框中的数据
+  function updateAuthorsData() {
+    authorsDataInput.value = JSON.stringify(authors);
+  }
+
+  // 重建作者列表（在删除操作后）
+  function rebuildAuthorsList() {
+    // 清空容器
+    authorsContainer.innerHTML = '';
+
+    // 重新添加所有作者
+    authors.forEach(author => {
+      addAuthor(author);
+    });
+
+    updateAuthorsData();
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% block page_title %}用户注册{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow">
+      <div class="card-body">
+        <h2 class="card-title h5 mb-4">注册新用户</h2>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% load crispy_forms_tags %}
+          {{ form|crispy }}
+          <!-- 角色选择 -->
+          <div class="mb-3">
+            <label class="form-label">选择角色</label>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" name="roles" value="Author" id="role_author" checked>
+              <label class="form-check-label" for="role_author">投稿人</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" name="roles" value="Reviewer" id="role_reviewer">
+              <label class="form-check-label" for="role_reviewer">审稿人</label>
+            </div>
+          </div>
+          <!-- 审稿人资质（动态显示） -->
+          <div id="reviewer_fields" style="display: none;">
+            <div class="accordion" id="reviewerAccordion">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#reviewerDetails">
+                    审稿人资质
+                  </button>
+                </h2>
+                <div id="reviewerDetails" class="accordion-collapse collapse show">
+                  <div class="accordion-body">
+                    {{ reviewer_form|crispy }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary bg-gradient">注册</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  document.getElementById('role_reviewer').addEventListener('change', function() {
+    document.getElementById('reviewer_fields').style.display = this.checked ? 'block' : 'none';
+  });
+</script>
+{% endblock %}

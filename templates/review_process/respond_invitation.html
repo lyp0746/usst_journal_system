@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+{% block page_title %}响应审稿邀请{% endblock %}
+{% block content %}
+<div class="card shadow p-4">
+  <h2 class="card-title h5 mb-4">响应审稿邀请 - {{ assignment.manuscript.manuscript_id }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn btn-primary bg-gradient">提交</button>
+    <a href="{% url 'invitation_list' %}" class="btn btn-secondary bg-gradient">取消</a>
+  </form>
+</div>
+{% endblock %}

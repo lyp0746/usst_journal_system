@@ -1,0 +1,3 @@
+<span class="badge {% if status == 'DRAFT' %}bg-secondary{% elif status == 'SUBMITTED' %}bg-primary{% elif status == 'UNDER_REVIEW' %}bg-info{% elif status == 'REVISION_REQUIRED' %}bg-warning{% elif status == 'REVISED' %}bg-success{% elif status == 'ACCEPTED' %}bg-success{% elif status == 'REJECTED' %}bg-danger{% elif status == 'REJECT_INITIAL' %}bg-danger{% elif status == 'PUBLISHED' %}bg-success{% endif %} rounded-pill">
+  {{ manuscript.get_status_display }}
+</span>

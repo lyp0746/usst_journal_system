@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% block page_title %}稿件安排 - 卷 {{ issue.volume.volume_number }} 期 {{ issue.issue_number }}{% endblock %}
+{% block content %}
+<div class="card shadow mb-4">
+  <div class="card-body">
+    <h2 class="card-title h5">安排稿件</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button type="submit" class="btn btn-primary bg-gradient">保存</button>
+    </form>
+  </div>
+</div>
+<div class="card shadow">
+  <div class="card-body">
+    <h2 class="card-title h5">已安排稿件</h2>
+    <table class="table table-hover">
+      <thead>
+        <tr><th>稿件编号</th><th>标题</th><th>页码</th><th>DOI</th></tr>
+      </thead>
+      <tbody>
+        {% for pub in publications %}
+          <tr>
+            <td>{{ pub.manuscript.manuscript_id }}</td>
+            <td>{{ pub.manuscript.title_cn }}</td>
+            <td>{{ pub.page_start }}-{{ pub.page_end }}</td>
+            <td>{{ pub.doi }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <a href="{% url 'generate_toc' issue.volume.id issue.issue_number %}" class="btn btn-primary bg-gradient">生成目录</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block page_title %}稿件详情{% endblock %}
+{% block content %}
+<div class="card shadow p-4">
+  <h2 class="card-title h5 mb-4">稿件详情 - {{ manuscript.manuscript_id }}</h2>
+  <div class="card mb-4">
+    <div class="card-body">
+      <h3 class="h6">基本信息</h3>
+      <p><strong>中文标题：</strong>{{ manuscript.title_cn }}</p>
+      <p><strong>英文标题：</strong>{{ manuscript.title_en }}</p>
+      <p><strong>类型：</strong>{{ manuscript.type.verbose_name }}</p>
+      <p><strong>研究领域：</strong>{{ manuscript.research_field.name }}</p>
+      <p><strong>查重率：</strong>{{ manuscript.similarity_rate }}%</p>
+    </div>
+  </div>
+  <div class="card mb-4">
+    <div class="card-body">
+      <h3 class="h6">评审进度</h3>
+      <ul class="timeline">
+        <li class="timeline-item">
+          <div class="timeline-body">
+            <strong>{{ manuscript.created_at|date:"Y-m-d" }}</strong>：创建草稿
+          </div>
+        </li>
+        {% if manuscript.submit_date %}
+          <li class="timeline-item">
+            <div class="timeline-body">
+              <strong>{{ manuscript.submit_date|date:"Y-m-d" }}</strong>：提交稿件
+            </div>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <h3 class="h6">文件</h3>
+      <p><a href="{{ manuscript.manuscript_file.url }}">下载原稿</a></p>
+      {% if manuscript.revised_file %}
+        <p><a href="{{ manuscript.revised_file.url }}">下载修改稿</a></p>
+      {% endif %}
+      {% if manuscript.additional_file %}
+        <p><a href="{{ manuscript.additional_file.url }}">下载补充材料</a></p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

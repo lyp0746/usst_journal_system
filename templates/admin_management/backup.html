@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block page_title %}系统管理 - 备份{% endblock %}
+{% block content %}
+<div class="card shadow border-0">
+  <div class="card-body">
+    <h2 class="card-title h5 mb-4">系统备份</h2>
+    <p class="text-muted mb-4">点击下方按钮生成数据库和媒体文件的备份，文件将自动下载。</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary bg-gradient">生成并下载备份</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

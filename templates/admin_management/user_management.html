@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block page_title %}用户管理{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    <div class="card shadow">
+      <div class="card-body">
+        <h2 class="card-title h5">用户列表</h2>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>用户名</th>
+              <th>姓名</th>
+              <th>角色</th>
+              <th>状态</th>
+              <th>注册时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+              <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.profile.full_name }}</td>
+                <td>{{ user.roles.all|join:", " }}</td>
+                <td>{{ user.is_active|yesno:"活跃,禁用" }}</td>
+                <td>{{ user.date_joined|date:"Y-m-d" }}</td>
+                <td>
+                  <a href="{% url 'user_edit' user.id %}" class="btn btn-sm btn-primary bg-gradient">编辑</a>
+                  <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#disableModal{{ user.id }}">禁用</button>
+                </td>
+              </tr>
+              <!-- 禁用模态框 -->
+              <div class="modal fade" id="disableModal{{ user.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">禁用用户</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                      确认禁用 {{ user.username }} 的账号？
+                    </div>
+                    <div class="modal-footer">
+                      <form method="post" action="{% url 'user_management' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <input type="hidden" name="action" value="disable">
+                        <button type="submit" class="btn btn-primary bg-gradient">确认</button>
+                      </form>
+                      <button type="button" class="btn btn-secondary bg-gradient" data-bs-dismiss="modal">取消</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

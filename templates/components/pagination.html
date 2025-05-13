@@ -1,0 +1,15 @@
+{% if page_obj.has_other_pages %}
+  <nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?{{ param_name }}={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != param_name %}&{{ key }}={{ value }}{% endif %}{% endfor %}">上一页</a></li>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link" href="?{{ param_name }}={{ num }}{% for key, value in request.GET.items %}{% if key != param_name %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a></li>
+      {% endfor %}
+      {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?{{ param_name }}={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != param_name %}&{{ key }}={{ value }}{% endif %}{% endfor %}">下一页</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}

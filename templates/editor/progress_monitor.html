@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block page_title %}审稿进度 - {{ manuscript.manuscript_id }}{% endblock %}
+{% block content %}
+<div class="card shadow p-4">
+  <h2 class="card-title h5 mb-4">审稿进度 - {{ manuscript.manuscript_id }}</h2>
+  <div class="card mb-4">
+    <div class="card-body">
+      <h3 class="h6">稿件信息</h3>
+      <p><strong>标题：</strong>{{ manuscript.title_cn }}</p>
+      <p><strong>状态：</strong>{% include "components/status_badge.html" with status=manuscript.status %}</p>
+
+      <!-- 添加进度统计 -->
+      <div class="progress-stats mt-3">
+        <h4 class="h6">审稿进度统计</h4>
+        <div class="row">
+          <div class="col-md-2">
+            <div class="card bg-light text-center p-2">
+              <h5>{{ stats.total }}</h5>
+              <small>总计</small>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="card bg-warning text-center p-2">
+              <h5>{{ stats.invited }}</h5>
+              <small>已邀请</small>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="card bg-primary text-white text-center p-2">
+              <h5>{{ stats.in_progress }}</h5>
+              <small>进行中</small>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="card bg-success text-white text-center p-2">
+              <h5>{{ stats.completed }}</h5>
+              <small>已完成</small>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="card bg-danger text-white text-center p-2">
+              <h5>{{ stats.overdue }}</h5>
+              <small>已逾期</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加审稿人按钮 -->
+  <div class="mb-3">
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addReviewerModal">
+      <i class="fas fa-plus"></i> 添加审稿人
+    </button>
+  </div>
+
+  <h3 class="h6 mb-3">审稿任务</h3>
+  {% include "components/timeline.html" with events=assignments %}
+
+  <!-- 添加过滤和排序选项 -->
+  <div class="d-flex justify-content-between mb-3">
+    <div class="dropdown">
+      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+        筛选
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="?filter=all">全部</a></li>
+        <li><a class="dropdown-item" href="?filter=invited">已邀请</a></li>
+        <li><a class="dropdown-item" href="?filter=in_progress">进行中</a></li>
+        <li><a class="dropdown-item" href="?filter=completed">已完成</a></li>
+        <li><a class="dropdown-item" href="?filter=overdue">逾期</a></li>
+      </ul>
+    </div>
+    <div class="dropdown">
+      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
+        排序
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="?sort=reviewer">按审稿人</a></li>
+        <li><a class="dropdown-item" href="?sort=status">按状态</a></li>
+        <li><a class="dropdown-item" href="?sort=due_date">按截止日期</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>审稿人</th>
+        <th>状态</th>
+        <th>截止日期</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for assignment in assignments %}
+        <tr>
+          <td>{{ assignment.reviewer.username }}</td>
+          <td>{% include "components/status_badge.html" with status=assignment.status %}</td>
+          <td>{{ assignment.due_date|date:"Y-m-d" }}</td>
+          <td>
+            <div class="btn-group">
+              {% if assignment.status in 'INVITED,DECLINED' %}
+                <a href="{% url 'replace_reviewer' assignment.id %}" class="btn btn-sm btn-primary">替换</a>
+              {% endif %}
+
+              {% if assignment.status in 'INVITED,ACCEPTED,IN_PROGRESS' %}
+                <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#reminderModal{{ assignment.id }}">
+                  发送提醒
+                </button>
+              {% endif %}
+
+              {% if assignment.status in 'ACCEPTED,IN_PROGRESS' %}
+                <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#extendDeadlineModal{{ assignment.id }}">
+                  延长截止日期
+                </button>
+              {% endif %}
+
+              {% if assignment.status == 'COMPLETED' %}
+                <a href="{% url 'view_review' assignment.id %}" class="btn btn-sm btn-success">
+                  查看审稿结果
+                </a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+
+        <!-- 各种模态框 -->
+        <!-- 提醒模态框 -->
+        <div class="modal fade" id="reminderModal{{ assignment.id }}" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="assignment_id" value="{{ assignment.id }}">
+                <div class="modal-header">
+                  <h5 class="modal-title">发送提醒</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <p>确认向 {{ assignment.reviewer.username }} 发送审稿提醒？</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                  <button type="submit" name="send_reminder" class="btn btn-primary">发送</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- 延长截止日期模态框 -->
+        <div class="modal fade" id="extendDeadlineModal{{ assignment.id }}" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="assignment_id" value="{{ assignment.id }}">
+                <div class="modal-header">
+                  <h5 class="modal-title">延长截止日期</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="new_due_date" class="form-label">新截止日期</label>
+                    <input type="date" class="form-control" id="new_due_date" name="new_due_date" required>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                  <button type="submit" name="extend_deadline" class="btn btn-primary">保存</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- 添加审稿人模态框 -->
+<div class="modal fade" id="addReviewerModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">添加新审稿人</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="reviewer" class="form-label">选择审稿人</label>
+            <select class="form-select" id="reviewer" name="reviewer_id" required>
+              <option value="">-- 请选择 --</option>
+              <!-- 这里需要后端提供可选审稿人列表 -->
+              {% for reviewer in available_reviewers %}
+                <option value="{{ reviewer.id }}">{{ reviewer.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="due_date" class="form-label">截止日期</label>
+            <input type="date" class="form-control" id="due_date" name="due_date" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="submit" name="add_reviewer" class="btn btn-primary">添加</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

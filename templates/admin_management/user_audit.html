@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block page_title %}用户审核{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    <div class="card shadow">
+      <div class="card-body">
+        <h2 class="card-title h5">待审核用户</h2>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>用户名</th>
+              <th>角色</th>
+              <th>姓名</th>
+              <th>单位</th>
+              <th>研究领域</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user_role in pending_users %}
+              <tr>
+                <td>{{ user_role.user.username }}</td>
+                <td>{{ user_role.role.name }}</td>
+                <td>{{ user_role.user.profile.full_name }}</td>
+                <td>{{ user_role.user.profile.institution }}</td>
+                <td>{{ user_role.user.reviewer_profile.research_fields.all|join:", " }}</td>
+                <td>
+                  <button class="btn btn-sm btn-primary bg-gradient" data-bs-toggle="modal" data-bs-target="#approveModal{{ user_role.id }}">批准</button>
+                  <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ user_role.id }}">拒绝</button>
+                </td>
+              </tr>
+              <!-- 批准模态框 -->
+              <div class="modal fade" id="approveModal{{ user_role.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">批准用户</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                      确认批准 {{ user_role.user.username }} 的 {{ user_role.role.name }} 角色？
+                    </div>
+                    <div class="modal-footer">
+                      <form method="post" action="{% url 'user_audit' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_role_id" value="{{ user_role.id }}">
+                        <input type="hidden" name="action" value="approve">
+                        <button type="submit" class="btn btn-primary bg-gradient">确认</button>
+                      </form>
+                      <button type="button" class="btn btn-secondary bg-gradient" data-bs-dismiss="modal">取消</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- 拒绝模态框 -->
+              <div class="modal fade" id="rejectModal{{ user_role.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">拒绝用户</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                      <form method="post" action="{% url 'user_audit' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_role_id" value="{{ user_role.id }}">
+                        <input type="hidden" name="action" value="reject">
+                        <div class="mb-3">
+                          <label class="form-label">拒绝理由</label>
+                          <textarea class="form-control" name="reason" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary bg-gradient">确认</button>
+                      </form>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary bg-gradient" data-bs-dismiss="modal">取消</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

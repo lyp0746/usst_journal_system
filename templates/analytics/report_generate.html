@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block page_title %}数据分析{% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- 筛选过滤面板 -->
+<div class="card shadow border-0 mb-4">
+  <div class="card-body">
+    <h2 class="card-title h5 mb-3">数据筛选</h2>
+    <form method="get">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">年份</label>
+          <select name="year" class="form-select">
+            <option value="">全部年份</option>
+            {% for year in years %}
+              <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">月份</label>
+          <select name="month" class="form-select">
+            <option value="">全部月份</option>
+            {% for month in months %}
+              <option value="{{ month }}" {% if month == selected_month %}selected{% endif %}>{{ month }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">研究领域</label>
+          <select name="research_field" class="form-select">
+            <option value="">所有领域</option>
+            {% for field in research_fields %}
+              <option value="{{ field.code }}" {% if selected_research_field == field.code %}selected{% endif %}>{{ field.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">审稿人</label>
+          <select name="reviewer" class="form-select">
+            <option value="">所有审稿人</option>
+            {% for reviewer in reviewers %}
+              <option value="{{ reviewer.username }}" {% if selected_reviewer == reviewer.username %}selected{% endif %}>{{ reviewer.username }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-12 text-end">
+          <button type="submit" class="btn btn-primary bg-gradient">应用筛选</button>
+          <a href="{% url 'report_generate' %}" class="btn btn-outline-secondary">重置</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 图表展示区域 -->
+<div class="row row-cols-1 row-cols-md-2 g-4">
+  <!-- 投稿趋势 -->
+  <div class="col">
+    <div class="card shadow border-0">
+      <div class="card-body">
+        <h2 class="card-title h5 mb-3">投稿趋势</h2>
+        <canvas id="submission-trend"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- 领域分布 -->
+  <div class="col">
+    <div class="card shadow border-0">
+      <div class="card-body">
+        <h2 class="card-title h5 mb-3">领域分布</h2>
+        <canvas id="field-distribution"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- 稿件状态分布 -->
+  <div class="col">
+    <div class="card shadow border-0">
+      <div class="card-body">
+        <h2 class="card-title h5 mb-3">稿件状态分布</h2>
+        <canvas id="status-distribution"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- 审稿效率 -->
+  <div class="col">
+    <div class="card shadow border-0">
+      <div class="card-body">
+        <h2 class="card-title h5 mb-3">审稿效率</h2>
+        <canvas id="review-efficiency"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- 投稿人活跃度 -->
+  <div class="col">
+    <div class="card shadow border-0">
+      <div class="card-body">
+        <h2 class="card-title h5 mb-3">投稿人活跃度</h2>
+        <canvas id="author-activity"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 报表导出面板 -->
+<div class="card shadow border-0 mt-4">
+  <div class="card-body">
+    <h2 class="card-title h5 mb-3">报表导出</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="report_type" class="form-label">报表类型</label>
+          <select name="report_type" id="report_type" class="form-select">
+            <option value="manuscript_list">稿件列表</option>
+            <option value="submission_trend">投稿趋势</option>
+            <option value="field_distribution">领域分布</option>
+            <option value="status_distribution">稿件状态分布</option>
+            <option value="review_efficiency">审稿效率</option>
+            <option value="author_activity">投稿人活跃度</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">开始日期</label>
+          <input type="date" name="start_date" class="form-control" value="{{ request.POST.start_date }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">结束日期</label>
+          <input type="date" name="end_date" class="form-control" value="{{ request.POST.end_date }}">
+        </div>
+        <div class="col-md-12 text-end">
+          <button type="submit" class="btn btn-primary bg-gradient">导出 PDF</button>
+          <button type="submit" class="btn btn-secondary bg-gradient" name="csv">导出 CSV</button>
+        </div>
+      </div>
+
+      <!-- 隐藏字段：保留当前筛选条件 -->
+      <input type="hidden" name="research_field" value="{{ request.GET.research_field }}">
+      <input type="hidden" name="reviewer" value="{{ request.GET.reviewer }}">
+      <input type="hidden" name="year" value="{{ request.GET.year }}">
+      <input type="hidden" name="month" value="{{ request.GET.month }}">
+    </form>
+  </div>
+</div>
+
+<!-- 图表初始化脚本 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  // 投稿趋势折线图
+  new Chart(document.getElementById('submission-trend'), {
+    type: 'line',
+    data: {
+      labels: {{ submission_labels|safe }},
+      datasets: [{
+        label: '投稿量',
+        data: {{ submission_data|safe }},
+        borderColor: '#0052cc',
+        backgroundColor: 'rgba(0, 82, 204, 0.2)',
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top' },
+        title: { display: true, text: '月度投稿趋势' }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  // 领域分布饼图
+  new Chart(document.getElementById('field-distribution'), {
+    type: 'pie',
+    data: {
+      labels: {{ field_labels|safe }},
+      datasets: [{
+        data: {{ field_data|safe }},
+        backgroundColor: ['#0052cc', '#6f42c1', '#d63384', '#fd7e14', '#20c997', '#17a2b8'],
+        borderColor: '#ffffff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'right' },
+        title: { display: true, text: '研究领域分布' }
+      }
+    }
+  });
+
+  // 稿件状态分布图
+  new Chart(document.getElementById('status-distribution'), {
+    type: 'pie',
+    data: {
+      labels: {{ status_labels|safe }},
+      datasets: [{
+        data: {{ status_data|safe }},
+        backgroundColor: ['#0052cc', '#6f42c1', '#d63384', '#fd7e14', '#20c997', '#17a2b8'],
+        borderColor: '#ffffff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'right' },
+        title: { display: true, text: '稿件状态分布' }
+      }
+    }
+  });
+
+  // 审稿效率柱状图
+  new Chart(document.getElementById('review-efficiency'), {
+    type: 'bar',
+    data: {
+      labels: {{ review_labels|safe }},
+      datasets: [{
+        label: '平均审稿天数',
+        data: {{ review_data|safe }},
+        backgroundColor: '#6f42c1',
+        borderColor: '#5a32a3',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: '审稿人效率' }
+      },
+      scales: {
+        y: { beginAtZero: true, title: { display: true, text: '天数' } }
+      }
+    }
+  });
+
+  // 投稿人活跃度折线图
+  new Chart(document.getElementById('author-activity'), {
+    type: 'line',
+    data: {
+      labels: {{ activity_labels|safe }},
+      datasets: {{ activity_data|safe }}
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top' },
+        title: { display: true, text: '投稿人活跃度' }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>
+{% endblock %}

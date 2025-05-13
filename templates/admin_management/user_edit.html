@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% block page_title %}编辑用户{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow">
+      <div class="card-body">
+        <h2 class="card-title h5 mb-4">编辑用户：{{ user.username }}</h2>
+        <form method="post">
+          {% csrf_token %}
+          {% load crispy_forms_tags %}
+          {{ form|crispy }}
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary bg-gradient">保存</button>
+            <a href="{% url 'user_management' %}" class="btn btn-secondary bg-gradient">取消</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

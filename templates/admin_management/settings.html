@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% block page_title %}系统管理 - 设置{% endblock %}
+{% block content %}
+<div class="card shadow mb-4">
+  <div class="card-body">
+    <h2 class="card-title h5">添加新设置</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button type="submit" class="btn btn-primary bg-gradient">保存</button>
+    </form>
+  </div>
+</div>
+<div class="card shadow">
+  <div class="card-body">
+    <h2 class="card-title h5">当前设置</h2>
+    <table class="table table-hover">
+      <thead>
+        <tr><th>键</th><th>值</th><th>描述</th></tr>
+      </thead>
+      <tbody>
+        {% for setting in settings_list %}
+          <tr>
+            <td>{{ setting.key }}</td>
+            <td>{{ setting.value }}</td>
+            <td>{{ setting.description }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

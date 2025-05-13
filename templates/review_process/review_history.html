@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block page_title %}审稿历史{% endblock %}
+{% block content %}
+<div class="card shadow p-4">
+  <h2 class="card-title h5 mb-4">审稿历史</h2>
+
+  <!-- 搜索表单 -->
+  <form method="get" class="mb-4">
+    <div class="input-group">
+      <input type="text" name="keywords" class="form-control" placeholder="输入关键词搜索（如 AI、机器学习）" value="{{ request.GET.keywords|default:'' }}">
+      <button type="submit" class="btn btn-primary bg-gradient">搜索</button>
+      {% if keywords or request.GET.keywords %}
+        <a href="{% url 'review_history' %}" class="btn btn-outline-secondary">清除</a>
+      {% endif %}
+    </div>
+  </form>
+
+  <!-- 表格内容 -->
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>稿件编号</th>
+          <th>标题</th>
+          <th>关键词</th>
+          <th>完成日期</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for assignment in assignments|default:page_obj %}
+          <tr>
+            <td>{{ assignment.manuscript.manuscript_id }}</td>
+            <td>{{ assignment.manuscript.title_cn }}</td>
+            <td>{{ assignment.manuscript.keywords_cn }}</td>
+            <td>{{ assignment.completion_date|date:"Y-m-d" }}</td>
+            <td>
+              <a href="{% url 'manuscript_view' assignment.manuscript.manuscript_id %}" class="btn btn-sm btn-primary bg-gradient">查看</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-3">没有找到符合条件的审稿记录</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 分页组件 -->
+  {% include "components/pagination.html" with page_obj=page_obj|default:assignments %}
+</div>
+{% endblock %}

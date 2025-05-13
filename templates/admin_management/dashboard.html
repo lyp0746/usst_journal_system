@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block page_title %}系统管理 - 仪表盘{% endblock %}
+{% block content %}
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  <div class="col">
+    <div class="card shadow">
+      <div class="card-body">
+        <h2 class="card-title h5">用户数</h2>
+        <p class="display-6">{{ user_count }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card shadow">
+      <div class="card-body">
+        <h2 class="card-title h5">稿件数</h2>
+        <p class="display-6">{{ manuscript_count }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card shadow">
+      <div class="card-body">
+        <h2 class="card-title h5">已出版</h2>
+        <p class="display-6">{{ published_count }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

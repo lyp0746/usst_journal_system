@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+{% block page_title %}评审表{% endblock %}
+{% block content %}
+<div class="card shadow p-4">
+  <h2 class="card-title h5 mb-4">评审表 - {{ assignment.manuscript.manuscript_id }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" name="save_draft" class="btn btn-secondary bg-gradient">保存草稿</button>
+    <button type="submit" name="submit" class="btn btn-primary bg-gradient">提交</button>
+  </form>
+</div>
+{% endblock %}

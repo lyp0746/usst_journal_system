@@ -1,0 +1,11 @@
+<ul class="list-group">
+  {% for notification in page_obj %}
+    <li class="list-group-item {% if not notification.is_read %}bg-light{% endif %}">
+      <h6>{{ notification.title }} <small class="text-muted">{{ notification.created_at|date:"Y-m-d H:i" }}</small></h6>
+      <p>{{ notification.message }}</p>
+      {% if notification.url %}
+        <a href="{{ notification.url }}" class="btn btn-sm btn-primary bg-gradient">查看</a>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>

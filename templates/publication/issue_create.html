@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% block page_title %}创建期 - 卷 {{ volume.volume_number }}{% endblock %}
+{% block content %}
+<div class="card shadow">
+  <div class="card-body">
+    <h2 class="card-title h5">创建新期</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button type="submit" class="btn btn-primary bg-gradient">保存</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

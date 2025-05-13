@@ -1,0 +1,185 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="CssUnknownProperty" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myCustomPropertiesEnabled" value="true" />
+      <option name="myIgnoreVendorSpecificProperties" value="false" />
+      <option name="myCustomPropertiesList">
+        <value>
+          <list size="1">
+            <item index="0" class="java.lang.String" itemvalue="ring" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <Languages>
+        <language minSize="248" name="Python" />
+      </Languages>
+    </inspection_tool>
+    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myValues">
+        <value>
+          <list size="19">
+            <item index="0" class="java.lang.String" itemvalue="x-data" />
+            <item index="1" class="java.lang.String" itemvalue="@click" />
+            <item index="2" class="java.lang.String" itemvalue="x-show" />
+            <item index="3" class="java.lang.String" itemvalue="@click.away" />
+            <item index="4" class="java.lang.String" itemvalue="v-if" />
+            <item index="5" class="java.lang.String" itemvalue=":class" />
+            <item index="6" class="java.lang.String" itemvalue="@submit" />
+            <item index="7" class="java.lang.String" itemvalue=":style" />
+            <item index="8" class="java.lang.String" itemvalue=":href" />
+            <item index="9" class="java.lang.String" itemvalue="v-model" />
+            <item index="10" class="java.lang.String" itemvalue="@change" />
+            <item index="11" class="java.lang.String" itemvalue="v-for" />
+            <item index="12" class="java.lang.String" itemvalue=":key" />
+            <item index="13" class="java.lang.String" itemvalue=":value" />
+            <item index="14" class="java.lang.String" itemvalue="@dragstart" />
+            <item index="15" class="java.lang.String" itemvalue="@dragover.prevent" />
+            <item index="16" class="java.lang.String" itemvalue="@drop" />
+            <item index="17" class="java.lang.String" itemvalue="knew" />
+            <item index="18" class="java.lang.String" itemvalue="the" />
+          </list>
+        </value>
+      </option>
+      <option name="myCustomValuesEnabled" value="true" />
+    </inspection_tool>
+    <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myValues">
+        <value>
+          <list size="26">
+            <item index="0" class="java.lang.String" itemvalue="nobr" />
+            <item index="1" class="java.lang.String" itemvalue="noembed" />
+            <item index="2" class="java.lang.String" itemvalue="comment" />
+            <item index="3" class="java.lang.String" itemvalue="noscript" />
+            <item index="4" class="java.lang.String" itemvalue="embed" />
+            <item index="5" class="java.lang.String" itemvalue="script" />
+            <item index="6" class="java.lang.String" itemvalue="style" />
+            <item index="7" class="java.lang.String" itemvalue="div" />
+            <item index="8" class="java.lang.String" itemvalue="step-upload" />
+            <item index="9" class="java.lang.String" itemvalue="step-abstract" />
+            <item index="10" class="java.lang.String" itemvalue="step-confirm" />
+            <item index="11" class="java.lang.String" itemvalue="step-authors" />
+            <item index="12" class="java.lang.String" itemvalue="step-basic" />
+            <item index="13" class="java.lang.String" itemvalue="status-badge" />
+            <item index="14" class="java.lang.String" itemvalue="header-component" />
+            <item index="15" class="java.lang.String" itemvalue="sidebar-component" />
+            <item index="16" class="java.lang.String" itemvalue="footer-component" />
+            <item index="17" class="java.lang.String" itemvalue="manuscript-info" />
+            <item index="18" class="java.lang.String" itemvalue="review-score" />
+            <item index="19" class="java.lang.String" itemvalue="decision-summary" />
+            <item index="20" class="java.lang.String" itemvalue="timeline" />
+            <item index="21" class="java.lang.String" itemvalue="review-summary" />
+            <item index="22" class="java.lang.String" itemvalue="analytics-chart" />
+            <item index="23" class="java.lang.String" itemvalue="back-to-top" />
+            <item index="24" class="java.lang.String" itemvalue="search-bar" />
+            <item index="25" class="java.lang.String" itemvalue="notification-component" />
+          </list>
+        </value>
+      </option>
+      <option name="myCustomValuesEnabled" value="true" />
+    </inspection_tool>
+    <inspection_tool class="HttpUrlsUsage" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredUrls">
+        <list>
+          <option value="http://0.0.0.0" />
+          <option value="http://127.0.0.1" />
+          <option value="http://activemq.apache.org/schema/" />
+          <option value="http://ai.stanford.edu" />
+          <option value="http://aima.cs.berkeley.edu" />
+          <option value="http://aimachine.io" />
+          <option value="http://aleph.gutenberg.org" />
+          <option value="http://api.pythonscraping.com" />
+          <option value="http://api.scraperapi.com" />
+          <option value="http://blog.varunajayasiri.com" />
+          <option value="http://cxf.apache.org/schemas/" />
+          <option value="http://docs.scipy.org" />
+          <option value="http://eli.thegreenplace.net" />
+          <option value="http://en.wikipedia.org" />
+          <option value="http://flask.pocoo.org" />
+          <option value="http://google.com" />
+          <option value="http://gutenberg.pglaf.org" />
+          <option value="http://gutenberg.readingroo.ms" />
+          <option value="http://hilpisch.com" />
+          <option value="http://icanhazip.com" />
+          <option value="http://java.sun.com/" />
+          <option value="http://javafx.com/fxml" />
+          <option value="http://javafx.com/javafx/" />
+          <option value="http://journal.usst.edu.cn" />
+          <option value="http://json-schema.org/draft" />
+          <option value="http://kvfrans.com" />
+          <option value="http://lib.stat.cmu.edu" />
+          <option value="http://localhost" />
+          <option value="http://louistiao.me" />
+          <option value="http://maven.apache.org/POM/" />
+          <option value="http://maven.apache.org/xsd/" />
+          <option value="http://mirrors.kernel.org" />
+          <option value="http://nbviewer.jupyter.org" />
+          <option value="http://nlp.stanford.edu" />
+          <option value="http://oanda.com)," />
+          <option value="http://primefaces.org/ui" />
+          <option value="http://proxy.crawlera.com" />
+          <option value="http://proxy.crawlera.com" />
+          <option value="http://proxy.crawlera.com" />
+          <option value="http://python.org" />
+          <option value="http://pythonscraping.com" />
+          <option value="http://rasbt.github.io" />
+          <option value="http://raschkas.pythonanywhere.com" />
+          <option value="http://reuters.com" />
+          <option value="http://schema.cloudfoundry.org/spring/" />
+          <option value="http://schemas.xmlsoap.org/" />
+          <option value="http://stackoverflow.com" />
+          <option value="http://storage.googleapis.com" />
+          <option value="http://tiles.apache.org/" />
+          <option value="http://tpq.io" />
+          <option value="http://twitter.com" />
+          <option value="http://vahidmirjalili.com)," />
+          <option value="http://www.7-zip.org)" />
+          <option value="http://www.brookings.edu" />
+          <option value="http://www.csie.ntu.edu.tw" />
+          <option value="http://www.deitel.com" />
+          <option value="http://www.gutenberg.myebook.bg" />
+          <option value="http://www.ibm.com/webservices/xsd" />
+          <option value="http://www.jboss.com/xml/ns/" />
+          <option value="http://www.jboss.org/j2ee/schema/" />
+          <option value="http://www.mirrorservice.org" />
+          <option value="http://www.python.org" />
+          <option value="http://www.pythonscraping.com" />
+          <option value="http://www.robots.ox.ac.uk" />
+          <option value="http://www.springframework.org/schema/" />
+          <option value="http://www.springframework.org/security/tags" />
+          <option value="http://www.springframework.org/tags" />
+          <option value="http://www.thymeleaf.org" />
+          <option value="http://www.voidspace.org.uk" />
+          <option value="http://www.w3.org/" />
+          <option value="http://xmlns.jcp.org/" />
+          <option value="http://yann.lecun.com" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="NonAsciiCharacters" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N806" />
+          <option value="N803" />
+          <option value="N801" />
+          <option value="N812" />
+          <option value="N802" />
+          <option value="N814" />
+          <option value="N813" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyTypeCheckerInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="delta_list" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

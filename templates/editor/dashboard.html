@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}编辑工作台{% endblock %}
+
+{% block content %}
+<!-- 过滤表单 -->
+<div class="card shadow p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="card-title h5 mb-0">稿件管理</h2>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="showMineOnly" name="show_mine_only"
+             {% if request.GET.show_mine_only %}checked{% endif %} onchange="this.form.submit()">
+      <label class="form-check-label" for="showMineOnly">
+        仅显示我负责的稿件
+      </label>
+    </div>
+  </div>
+
+  <form method="get" class="mb-4">
+    <div class="row g-3">
+      <div class="col-md-2">
+        <select name="status" class="form-select">
+          <option value="">所有状态</option>
+          {% for status, display in status_choices %}
+            <option value="{{ status }}" {% if request.GET.status == status %}selected{% endif %}>{{ display }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select name="research_field" class="form-select">
+          <option value="">所有领域</option>
+          {% for field in research_fields %}
+            <option value="{{ field.code }}" {% if request.GET.research_field == field.code %}selected{% endif %}>{{ field.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <input type="date" name="start_date" class="form-control" placeholder="开始日期" value="{{ request.GET.start_date }}">
+      </div>
+      <div class="col-md-2">
+        <input type="date" name="end_date" class="form-control" placeholder="结束日期" value="{{ request.GET.end_date }}">
+      </div>
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-primary bg-gradient me-2">筛选</button>
+        <a href="{% url 'editor_dashboard' %}" class="btn btn-outline-secondary">重置</a>
+      </div>
+      <!-- 保留其他过滤参数 -->
+      {% if request.GET.show_mine_only %}
+        <input type="hidden" name="show_mine_only" value="true">
+      {% endif %}
+      <!-- 保留当前激活的标签页 -->
+      {% if active_tab %}
+        <input type="hidden" name="active_tab" value="{{ active_tab }}">
+      {% endif %}
+    </div>
+  </form>
+
+  {% if filtered_view %}
+  <!-- 过滤模式 -->
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>编号</th>
+        <th>标题</th>
+        <th>状态</th>
+        <th>领域</th>
+        <th>提交日期</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for manuscript in manuscripts %}
+        <tr>
+          <td>{{ manuscript.manuscript_id }}</td>
+          <td>
+            {% if manuscript.status == 'SUBMITTED' %}
+              <a href="{% url 'initial_review' manuscript.manuscript_id %}">{{ manuscript.title_cn }}</a>
+            {% elif manuscript.status == 'UNDER_REVIEW' %}
+              <a href="{% url 'progress_monitor' manuscript.manuscript_id %}">{{ manuscript.title_cn }}</a>
+            {% else %}
+              <a href="{% url 'review_summary' manuscript.manuscript_id %}">{{ manuscript.title_cn }}</a>
+            {% endif %}
+          </td>
+          <td>{% include "components/status_badge.html" with status=manuscript.status %}</td>
+          <td>{{ manuscript.research_field.name }}</td>
+          <td>{{ manuscript.submit_date|date:"Y-m-d" }}</td>
+          <td>
+            {% if manuscript.status == 'SUBMITTED' %}
+              <a href="{% url 'initial_review' manuscript.manuscript_id %}" class="btn btn-sm btn-primary bg-gradient">初审</a>
+            {% elif manuscript.status == 'UNDER_REVIEW' %}
+              <a href="{% url 'progress_monitor' manuscript.manuscript_id %}" class="btn btn-sm btn-primary bg-gradient">监控</a>
+              <a href="{% url 'assign_reviewer' manuscript.manuscript_id %}" class="btn btn-sm btn-outline-primary">分配审稿人</a>
+              <a href="{% url 'progress_monitor' manuscript.manuscript_id %}" class="btn btn-sm btn-outline-warning">催审</a>
+            {% elif manuscript.status in 'REVISION_REQUIRED,REVISED' %}
+              <a href="{% url 'review_summary' manuscript.manuscript_id %}" class="btn btn-sm btn-primary bg-gradient">意见汇总</a>
+              <a href="{% url 'decision_form' manuscript.manuscript_id %}" class="btn btn-sm btn-primary bg-gradient">决策</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="text-center">没有符合条件的稿件</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "components/pagination.html" with page_obj=manuscripts param_name="page" %}
+  {% else %}
+  <!-- 分类模式 -->
+  <ul class="nav nav-tabs mb-3" id="manuscriptTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link {% if active_tab == 'new' or not active_tab %}active{% endif %}"
+              id="new-tab" data-bs-toggle="tab" data-bs-target="#new" type="button"
+              role="tab" aria-controls="new"
+              aria-selected="{% if active_tab == 'new' or not active_tab %}true{% else %}false{% endif %}">
+        新投稿 <span class="badge bg-primary">{{ new_page_obj.paginator.count }}</span>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link {% if active_tab == 'review' %}active{% endif %}"
+              id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button"
+              role="tab" aria-controls="review"
+              aria-selected="{% if active_tab == 'review' %}true{% else %}false{% endif %}">
+        外审中 <span class="badge bg-primary">{{ review_page_obj.paginator.count }}</span>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link {% if active_tab == 'decision' %}active{% endif %}"
+              id="decision-tab" data-bs-toggle="tab" data-bs-target="#decision" type="button"
+              role="tab" aria-controls="decision"
+              aria-selected="{% if active_tab == 'decision' %}true{% else %}false{% endif %}">
+        待决策 <span class="badge bg-primary">{{ decision_page_obj.paginator.count }}</span>
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="manuscriptTabsContent">
+    <!-- 新投稿 -->
+    <div class="tab-pane fade {% if active_tab == 'new' or not active_tab %}show active{% endif %}"
+         id="new" role="tabpanel" aria-labelledby="new-tab">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>稿件编号</th>
+            <th>标题</th>
+            <th>领域</th>
+            <th>查重率</th>
+            <th>提交日期</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for manuscript in new_page_obj %}
+            <tr>
+              <td>{{ manuscript.manuscript_id }}</td>
+              <td><a href="{% url 'initial_review' manuscript.manuscript_id %}">{{ manuscript.title_cn }}</a></td>
+              <td>{{ manuscript.research_field.name }}</td>
+              <td>{{ manuscript.similarity_rate }}%</td>
+              <td>{{ manuscript.submit_date|date:"Y-m-d" }}</td>
+              <td>
+                <a href="{% url 'initial_review' manuscript.manuscript_id %}" class="btn btn-sm btn-primary bg-gradient">初审</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="text-center">暂无新投稿</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% with active_tab="new" %}
+      {% include "components/tab_pagination.html" with page_obj=new_page_obj param_name="new_page" active_tab=active_tab %}
+      {% endwith %}
+    </div>
+
+    <!-- 外审中 -->
+    <div class="tab-pane fade {% if active_tab == 'review' %}show active{% endif %}"
+         id="review" role="tabpanel" aria-labelledby="review-tab">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>稿件编号</th>
+            <th>标题</th>
+            <th>状态</th>
+            <th>提交日期</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for manuscript in review_page_obj %}
+            <tr>
+              <td>{{ manuscript.manuscript_id }}</td>
+              <td><a href="{% url 'progress_monitor' manuscript.manuscript_id %}">{{ manuscript.title_cn }}</a></td>
+              <td>{% include "components/status_badge.html" with status=manuscript.status %}</td>
+              <td>{{ manuscript.submit_date|date:"Y-m-d" }}</td>
+              <td>
+                <a href="{% url 'progress_monitor' manuscript.manuscript_id %}" class="btn btn-sm btn-primary bg-gradient">监控</a>
+                <a href="{% url 'assign_reviewer' manuscript.manuscript_id %}" class="btn btn-sm btn-outline-primary">分配审稿人</a>
+                <a href="{% url 'progress_monitor' manuscript.manuscript_id %}" class="btn btn-sm btn-outline-warning">催审</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="text-center">暂无外审中稿件</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% with active_tab="review" %}
+      {% include "components/tab_pagination.html" with page_obj=review_page_obj param_name="review_page" active_tab=active_tab %}
+      {% endwith %}
+    </div>
+
+    <!-- 待决策 -->
+    <div class="tab-pane fade {% if active_tab == 'decision' %}show active{% endif %}"
+         id="decision" role="tabpanel" aria-labelledby="decision-tab">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>稿件编号</th>
+            <th>标题</th>
+            <th>状态</th>
+            <th>提交日期</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for manuscript in decision_page_obj %}
+            <tr>
+              <td>{{ manuscript.manuscript_id }}</td>
+              <td><a href="{% url 'review_summary' manuscript.manuscript_id %}">{{ manuscript.title_cn }}</a></td>
+              <td>{% include "components/status_badge.html" with status=manuscript.status %}</td>
+              <td>{{ manuscript.submit_date|date:"Y-m-d" }}</td>
+              <td>
+                <a href="{% url 'review_summary' manuscript.manuscript_id %}" class="btn btn-sm btn-primary bg-gradient">意见汇总</a>
+                <a href="{% url 'decision_form' manuscript.manuscript_id %}" class="btn btn-sm btn-primary bg-gradient">决策</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="text-center">暂无待决策稿件</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% with active_tab="decision" %}
+      {% include "components/tab_pagination.html" with page_obj=decision_page_obj param_name="decision_page" active_tab=active_tab %}
+      {% endwith %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- 添加JavaScript来保持标签页状态 -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 从URL中获取当前激活的标签页
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTab = urlParams.get('active_tab');
+
+    // 为标签页按钮添加点击事件监听器
+    document.querySelectorAll('#manuscriptTabs .nav-link').forEach(tab => {
+      tab.addEventListener('click', function() {
+        // 获取当前点击的标签页ID
+        const tabId = this.getAttribute('aria-controls');
+
+        // 更新URL中的active_tab参数，但不刷新页面
+        let url = new URL(window.location);
+        url.searchParams.set('active_tab', tabId);
+        window.history.pushState({}, '', url);
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% block page_title %}卷期管理{% endblock %}
+{% block content %}
+<div class="card shadow mb-4">
+  <div class="card-body">
+    <h2 class="card-title h5">创建新卷</h2>
+    <form method="post" class="mb-4">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button type="submit" class="btn btn-primary bg-gradient">保存</button>
+    </form>
+    <h2 class="card-title h5">卷列表</h2>
+    <table class="table table-hover">
+      <thead>
+        <tr><th>卷号</th><th>年份</th><th>发布状态</th><th>操作</th></tr>
+      </thead>
+      <tbody>
+        {% for volume in volumes %}
+          <tr>
+            <td>{{ volume.volume_number }}</td>
+            <td>{{ volume.year }}</td>
+            <td>{{ volume.is_published|yesno:"已发布,未发布" }}</td>
+            <td>
+              <a href="{% url 'issue_create' volume.id %}" class="btn btn-sm btn-primary bg-gradient">新增期</a>
+              <a href="{% url 'arrange_manuscripts' volume.id 1 %}" class="btn btn-sm btn-secondary bg-gradient">管理稿件</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

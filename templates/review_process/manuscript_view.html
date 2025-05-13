@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block page_title %}稿件查看{% endblock %}
+{% block content %}
+<div class="card shadow p-4">
+  <h2 class="card-title h5 mb-4">稿件查看 - {{ manuscript.manuscript_id }}</h2>
+  <div class="card mb-4">
+    <div class="card-body">
+      <h3 class="h6">基本信息</h3>
+      <p><strong>中文标题：</strong>{{ manuscript.title_cn }}</p>
+      <p><strong>英文标题：</strong>{{ manuscript.title_en }}</p>
+      <p><strong>中文摘要：</strong>{{ manuscript.abstract_cn }}</p>
+      <p><strong>英文摘要：</strong>{{ manuscript.abstract_en }}</p>
+      <p><strong>中文关键词：</strong>{{ manuscript.keywords_cn }}</p>
+      <p><strong>英文关键词：</strong>{{ manuscript.keywords_en }}</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <h3 class="h6">文件</h3>
+      <p><a href="{{ manuscript.manuscript_file.url }}">下载稿件</a></p>
+      {% if manuscript.additional_file %}
+        <p><a href="{{ manuscript.additional_file.url }}">下载补充材料</a></p>
+      {% endif %}
+    </div>
+  </div>
+  {% if assignment.status in 'ACCEPTED,IN_PROGRESS' %}
+    <div class="mt-4">
+      <a href="{% url 'review_form' assignment.id %}" class="btn btn-primary bg-gradient">填写评审表</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

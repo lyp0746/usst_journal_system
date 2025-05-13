@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block page_title %}修改历史 - {{ manuscript.manuscript_id }}{% endblock %}
+{% block content %}
+<div class="card shadow">
+  <div class="card-body">
+    <h2 class="card-title h5 mb-4">修改历史 - {{ manuscript.manuscript_id }}</h2>
+    <table class="table table-hover">
+      <thead><tr><th>版本</th><th>文件</th><th>说明</th><th>提交时间</th></tr></thead>
+      <tbody>
+        {% for revision in manuscript.revisions.all %}
+          <tr>
+            <td>v{{ revision.version }}</td>
+            <td><a href="{{ revision.revised_file.url }}">下载</a></td>
+            <td>{{ revision.comments }}</td>
+            <td>{{ revision.submitted_at|date:"Y-m-d" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

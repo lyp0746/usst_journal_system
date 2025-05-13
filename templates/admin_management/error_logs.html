@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block page_title %}系统管理 - 错误日志{% endblock %}
+{% block content %}
+<div class="card shadow">
+  <div class="card-body">
+    <h2 class="card-title h5">错误日志</h2>
+    <table class="table table-hover">
+      <thead>
+        <tr><th>时间</th><th>操作</th><th>详情</th></tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+          <tr>
+            <td>{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+            <td>{{ log.action }}</td>
+            <td>{{ log.details }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

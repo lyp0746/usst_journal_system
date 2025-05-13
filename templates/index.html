@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block page_title %}首页{% endblock %}
+{% block content %}
+<div class="card shadow p-4">
+  <h2 class="card-title h5">欢迎使用上海理工大学学报管理系统</h2>
+  <p>支持投稿、审稿、编辑和出版全流程管理。</p>
+  <a href="{% url 'register' %}" class="btn btn-primary bg-gradient">注册</a>
+  <a href="{% url 'login' %}" class="btn btn-secondary bg-gradient">登录</a>
+</div>
+{% endblock %}
